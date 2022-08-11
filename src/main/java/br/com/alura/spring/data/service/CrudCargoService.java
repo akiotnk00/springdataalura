@@ -1,61 +1,55 @@
 package br.com.alura.spring.data.service;
 
-import java.util.Collection;
 import java.util.Scanner;
 
 import org.springframework.stereotype.Service;
 
 import br.com.alura.spring.data.orm.Cargo;
 import br.com.alura.spring.data.repository.CargoRepository;
-import br.com.alura.spring.data.utils.utilitarios;
 
 @Service
 public class CrudCargoService {
-
+	
+	private Boolean system = true;
 	private final CargoRepository cargoRepository;
-	private boolean system = true;
-	Integer idEscolhido;
-
+	
 	public CrudCargoService(CargoRepository cargoRepository) {
 		this.cargoRepository = cargoRepository;
 	}
-
+	
 	public void inicial(Scanner scanner) {
-		while (system == true) {
-			System.out.println("Escolha uma opção:");
+		while(system) {
+			System.out.println("Qual acao de cargo deseja executar");
 			System.out.println("0 - Sair");
-			System.out.println("1 - Criar novo");
-			System.out.println("2 - Editar");
-			System.out.println("3 - Ver todos");
-			System.out.println("4 - Apagar");
+			System.out.println("1 - Salvar");
+			System.out.println("2 - Atualizar");
+			System.out.println("3 - Visualizar");
+			System.out.println("4 - Deletar");
+			
 			int action = scanner.nextInt();
-
+			
 			switch (action) {
 			case 1:
-				utilitarios.clearConsole();
 				salvar(scanner);
 				break;
 			case 2:
-				utilitarios.clearConsole();
 				atualizar(scanner);
 				break;
 			case 3:
-				utilitarios.clearConsole();
-				exibirTodos();
+				visualizar();
 				break;
 			case 4:
-				utilitarios.clearConsole();
-				apagar(scanner);
+				deletar(scanner);
+				break;
 			default:
 				system = false;
 				break;
 			}
-
+			
 		}
-
+		
 	}
-
-	// Cria um novo registro de cargo.
+	
 	private void salvar(Scanner scanner) {
 		System.out.println("Descricao do cargo");
 		String descricao = scanner.next();
@@ -64,63 +58,30 @@ public class CrudCargoService {
 		cargoRepository.save(cargo);
 		System.out.println("Salvo");
 	}
-
-	// Exibe todos os registros.
-	private void exibirTodos() {
-		var cargos = cargoRepository.findAll();
-
-		// Percorrer todo o iterable.
-		for (Cargo c : cargos) {
-			System.out.println(c.getId() + " - " + c.getDescricao());
-		}
-	}
-
-	// Atualiza os dados de um registro.
+	
 	private void atualizar(Scanner scanner) {
+		System.out.println("Id");
+		int id = scanner.nextInt();
+		System.out.println("Descricao do Cargo");
+		String descricao = scanner.next();
+		
 		Cargo cargo = new Cargo();
-		var cargos = cargoRepository.findAll();
-		String descricao;
-		Integer quantidade = 0;
-
-		System.out.println("Digite o ID que deseja editar:");
-		idEscolhido = scanner.nextInt();
-
-		if (idEscolhido < 1 || cargoRepository.findById(idEscolhido) == null) {
-			System.out.println("Valor escolhido invalido!");
-		} else {
-			cargo.setId(idEscolhido);
-			System.out.println("Digite a nova descrição:");
-			descricao = scanner.next();
-			cargo.setDescricao(descricao);
-			cargoRepository.save(cargo);
-		}
-
+		cargo.setId(id);
+		cargo.setDescricao(descricao);
+		cargoRepository.save(cargo);
+		System.out.println("Atualizado");
 	}
-
-	// Devolve o tamanho máximo de um iterable
-	private int tamanho(Iterable<Cargo> cargos) {
-
-		if (cargos instanceof Collection) {
-			return ((Collection<?>) cargos).size();
-		}
-		return 0;
+	
+	private void visualizar() {
+		Iterable<Cargo> cargos = cargoRepository.findAll();
+		cargos.forEach(cargo -> System.out.println(cargo));
 	}
-
-	private void apagar(Scanner scanner) {
-
-		var cargos = cargoRepository.findAll();
-
-		System.out.println("Digite o ID que deseja apagar:");
-		idEscolhido = scanner.nextInt();
-
-		if (idEscolhido < 1 || cargoRepository.findById(idEscolhido) == null) {
-			System.out.println("Valor escolhido invalido!");
-		} else {
-			cargoRepository.deleteById(idEscolhido);
-			System.out.println("Registro excluido");
-
-		}
-
+	
+	private void deletar(Scanner scanner) {
+		System.out.println("Id");
+		int id = scanner.nextInt();
+		cargoRepository.deleteById(id);
+		System.out.println("Deletado");
 	}
-
+	
 }
